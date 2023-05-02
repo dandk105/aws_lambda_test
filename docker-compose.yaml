@@ -3,6 +3,18 @@ services:
   web:
     build: .
     ports:
-      - "8000:5000"
+      - "8000:8030"
+    environment:
+      PORT: 8030
+      env: debug
   db:
-    image: "muysql:5.7"
+    image: "mysql:8.0"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080

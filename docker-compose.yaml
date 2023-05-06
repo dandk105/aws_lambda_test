@@ -1,3 +1,4 @@
+#ローカル環境でDBとAPIサーバーの連携を確認するときに使用するdocker-compose.yml
 version: "3.9"
 services:
   web:
@@ -7,11 +8,18 @@ services:
     environment:
       PORT: 8030
       env: debug
+    depends_on:
+      - db
   db:
     image: "mysql:8.0"
     restart: always
     environment:
+      MYSQL_DATABASE: mydb
       MYSQL_ROOT_PASSWORD: example
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
+    ports:
+      - "3306:3306"
 
   adminer:
     image: adminer

@@ -24,8 +24,8 @@ func SetupRouter() *gin.Engine {
 		v1.GET("/echoq", echoq)
 		v1.GET("/clock", testClock)
 		v1.PATCH("/clock", testClock)
-		v1.POST("/user", subscribeUserinformation)
-		v1.GET("/user", getUserinformation)
+		v1.POST("/user", subscribeUserAccountInfo)
+		v1.GET("/user", getUserAccountinfo)
 	}
 	return router
 }
@@ -61,7 +61,7 @@ func echoq(c *gin.Context) {
 }
 
 // リクエストクエリのうちnameとfamily_nameをdbに登録するための関数
-func subscribeUserinformation(c *gin.Context) {
+func subscribeUserAccountInfo(c *gin.Context) {
 	// リクエストのクエリが定義された構造体
 	var user User
 	// TODO: User構造体のbirthdayやidの値がdefaultで設定されるので、
@@ -76,8 +76,8 @@ func subscribeUserinformation(c *gin.Context) {
 	}
 }
 
-// Userinformationを取得するための関数
-func getUserinformation(c *gin.Context) {
+// UserAccountinfoを取得するための関数
+func getUserAccountinfo(c *gin.Context) {
 	// リクエストのクエリが定義された構造体
 	var user User
 	if c.ShouldBind(&user) == nil {

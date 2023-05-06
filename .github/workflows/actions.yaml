@@ -1,4 +1,4 @@
-name: Go
+name: Go build and test
 
 on:
   push:
@@ -18,3 +18,16 @@ jobs:
       # 単体テストを実行
       - name: 単体テスト実行
         run: go test -v .
+      - name: configure AWS credentials to deploy to aws resources
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION}}
+      - name: authorize docker to push to ECR
+        run: aws ecr get-login-password --region ${{ secrets.AWS_REGION}}  | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{secrets.AWS_REGION}}.amazonaws.com
+      - name: build docker image
+        run: docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION}}.amazonaws.com/${{ secrets.ECR_REPOSITORY_NAME }}:latest .
+      - name: push docker image
+        run: docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION}}.amazonaws.com/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+

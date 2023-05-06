@@ -16,3 +16,12 @@ aws aurora
 `docker compose build`
 
 `docker compose up -d`
+
+
+## 環境変数
+PORT -> APIサーバーのポート番号
+ENV　-> 開発環境か本番環境かを判定する
+DB_USERNAME
+DB_PASSWORD
+DB_ENDPOINT
+DB_DATABASE

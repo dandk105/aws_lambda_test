@@ -13,7 +13,11 @@ aws aurora
 
 ## 開発環境
 
-`docker compose build`
+dockerイメージを作成する時のコマンド
+`docker image build --build-arg MYSQL_DATABASE=$MYSQL_DATABASE MYSQL_USER=$MYSQL_USER　DB_PASSWORD=$DB_PASSWORD　DB_ENDPOINT=$DB_ENDPOINT　ENV=$ENV -t local-test:latest .`
+
+docker composeのサービスを作成する時のコマンド
+`docker compose build --build-arg　ENV=$ENV SERVER_PORT=$SERVER_PORT web `
 
 `docker compose up -d`
 

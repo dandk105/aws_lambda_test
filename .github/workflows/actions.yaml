@@ -25,9 +25,18 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION}}
       - name: authorize docker to push to ECR
-        run: aws ecr get-login-password --region ${{ secrets.AWS_REGION}}  | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{secrets.AWS_REGION}}.amazonaws.com
+        run: aws ecr get-login-password --region $aws-region | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.$aws-region.amazonaws.com
+      # docker imageをbuild
+      # secretsの情報をbuild時に渡す
       - name: build docker image
-        run: docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION}}.amazonaws.com/${{ secrets.ECR_REPOSITORY_NAME }}:latest .
+        env:
+          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
+          MYSQL_USER: ${{ secrets.DB_USER }}
+          MYSQL_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_ENDPOINT: ${{ secrets.DB_ENDPOINT }}
+          SEVER_PORT: 8030
+          ENV: "release"
+        run: docker image build --build-arg MYSQL_DATABASE=$MYSQL_DATABASE --build-arg MYSQL_USER=$MYSQL_USER --build-arg MYSQL_PASSWORD=$MYSQL_PASSWORD --build-arg DB_ENDPOINT=$DB_ENDPOINT --build-arg ENV=release --build-arg SEVER_PORT=$SEVER_PORT -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$aws-region.amazonaws.com/${{ secrets.ECR_REPOSITORY_NAME }}:latest .
+      # docker imageをECRにpush
       - name: push docker image
-        run: docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION}}.amazonaws.com/${{ secrets.ECR_REPOSITORY_NAME }}:latest
-
+        run: docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$aws-region.amazonaws.com/${{ secrets.ECR_REPOSITORY_NAME }}:latest

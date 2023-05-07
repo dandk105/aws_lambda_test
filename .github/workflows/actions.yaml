@@ -34,7 +34,7 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.OIDC_PROVIDER }}:role/github_actions_deploy
           aws-region: ${{ secrets.AWS_REGION }}
       - name: authorize docker to push to ECR
-        run: aws ecr get-login-password --region ${{ secrets.aws-region }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.aws-region }}.amazonaws.com
+        run: aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
       # docker imageをbuild
       # secretsの情報をbuild時に渡す
       - name: build docker image

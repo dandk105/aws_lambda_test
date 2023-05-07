@@ -8,11 +8,8 @@ on:
 
 jobs:
   build_and_test:
+    name: Build and test
     runs-on: ubuntu-latest
-    # These permissions are needed to interact with GitHub's OIDC Token endpoint.
-    permissions:
-      id-token: write
-      contents: read
     steps:
       - uses: actions/checkout@v3
       - name: gofmtの実行
@@ -22,6 +19,15 @@ jobs:
       # 単体テストを実行
       - name: 単体テスト実行
         run: go test -v .
+  deploy_docker_image_to_aws:
+    name: Deploy docker image to AWS
+    runs-on: ubuntu-latest
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint.
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
       - name: configure AWS credentials to deploy to aws resources
         uses: aws-actions/configure-aws-credentials@v2
         with:

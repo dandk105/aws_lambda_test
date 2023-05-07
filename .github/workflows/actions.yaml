@@ -9,6 +9,10 @@ on:
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint.
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - uses: actions/checkout@v3
       - name: gofmtの実行
@@ -21,8 +25,7 @@ jobs:
       - name: configure AWS credentials to deploy to aws resources
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: arn:aws:iam::${{ secrets.OIDC_PROVIDER}}:role/github_actions_deploy
           aws-region: ${{ secrets.AWS_REGION}}
       - name: authorize docker to push to ECR
         run: aws ecr get-login-password --region $aws-region | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.$aws-region.amazonaws.com

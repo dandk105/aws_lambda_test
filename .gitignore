@@ -1,2 +1,5 @@
 .env
+.env.*
 go.work
+
+*.sh

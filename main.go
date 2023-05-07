@@ -8,9 +8,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/joho/godotenv"
-
 	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 // ginのengine設定
@@ -33,12 +32,15 @@ func SetupRouter() *gin.Engine {
 // ginのmode設定
 // 環境変更のENVがdevの場合はginのmodeをdebugに、それ以外の場合はreleaseに設定する
 func SetupGinmode() {
-	if os.Getenv("ENV") == "dev" {
-		gin.SetMode(gin.DebugMode)
-		log.Printf("INFO: Set a server mode as development mode")
-	} else {
+	switch {
+	case os.Getenv("ENV") == "release":
 		gin.SetMode(gin.ReleaseMode)
 		log.Printf("INFO: Set a server mode as release mode")
+	default:
+		gin.SetMode(gin.DebugMode)
+		log.Printf("INFO: Set a server mode as debug mode")
+		//godotenv.Load()
+		//log.Println("INFO: Load .env file")
 	}
 }
 
@@ -95,26 +97,29 @@ func testClock(c *gin.Context) {
 }
 
 func main() {
-	// 環境変数の読み込み
-	godotenv.Load()
-	log.Println("INFO: Load .env file")
-
+	// ginのmode設定
 	SetupGinmode()
 
 	// dbの接続を確立するための処理
-	username := os.Getenv("DB_USERNAME")
-	password := os.Getenv("DB_PASSWORD")
+	username := os.Getenv("MYSQL_USER")
+	password := os.Getenv("MYSQL_PASSWORD")
 	endpoint := os.Getenv("DB_ENDPOINT")
-	database := os.Getenv("DB_DATABASE")
+	database := os.Getenv("MYSQL_DATABASE")
 	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s", username, password, endpoint, database))
-	if err != nil && gin.Mode() == gin.ReleaseMode {
-		log.Fatalf("ERROR: Failed to connect to database")
+	if err != nil {
+		switch {
+		case gin.Mode() == gin.ReleaseMode:
+			log.Fatalf("ERROR: Failed to connect to database")
+		case gin.Mode() == gin.DebugMode:
+			log.Printf("ERROR: Failed to connect to database\n %s", err)
+		}
 	}
+
 	// dbの接続が完了した場合は,deferでdbを閉じる処理を遅らせる
 	defer db.Close()
 
 	router := SetupRouter()
-	port := os.Getenv("PORT")
+	port := os.Getenv("SERVER_PORT")
 	log.Printf("INFO: Waite for request on port %s", port)
 	if err := router.Run(":" + port); err != nil {
 		log.Printf("server didnt start")

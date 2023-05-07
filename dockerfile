@@ -1,10 +1,25 @@
 FROM golang:1.20.0-buster AS builder
 
+ARG SERVER_PORT
+ARG DB_ENDPOINT
+ARG MYSQL_USER
+ARG MYSQL_PASSWORD
+ARG MYSQL_DATABASE
+ARG ENV
+
+ENV SERVER_PORT=${SERVER_PORT}
+ENV DB_ENDPOINT=${DB_ENDPOINT}
+ENV MYSQL_USER=${MYSQL_USER}
+ENV MYSQL_PASSWORD=${MYSQL_PASSWORD}
+ENV MYSQL_DATABASE=${MYSQL_DATABASE}
+ENV ENV=${ENV}
+
 WORKDIR /usr/src/app
 COPY go.mod go.sum ./
 RUN go mod download && go mod verify
 
 COPY main.go ./
+COPY schema.go ./
 RUN go build -v -o /usr/bin/app
 
 CMD [ "/usr/bin/app" ]
